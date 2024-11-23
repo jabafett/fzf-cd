@@ -164,12 +164,13 @@ __fzf_cd() {
 
   # Handle the selected item based on whether it's a file or directory
   if [[ -d "$full_path" ]]; then
+    FZF_CD_SELECTED_PATH="$full_path" # Set this variable for the launchers
     cd "$full_path" || {
       echo "Failed to change directory to '$full_path'"
       return 1
     }
   elif [[ -f "$full_path" ]]; then
-    SELECTED_PATH="$full_path" # Set this variable for the launcher
+    FZF_CD_SELECTED_PATH="$full_path" # Set this variable for the launchers
     ${EDITOR:-nvim} "$full_path"
   fi
 }
