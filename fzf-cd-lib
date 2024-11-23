@@ -115,7 +115,7 @@ __fzf_cd() {
   if $include_files; then
     finder_cmd="fd --exclude .git --min-depth 1 ."
   else
-    finder_cmd="fd --type d --exclude .git --min-depth 1 ."
+    finder_cmd="fd --type d --exclude .git --exclude venv --exclude node_modules --min-depth 1 ."
   fi
 
   # Echo keybindings
@@ -138,10 +138,10 @@ __fzf_cd() {
     --preview-label "Preview" \
     --prompt "$search_dir/> " \
     --preview "$HOME/.local/lib/fzf-cd/fzf-cd-preview {}" \
-    --bind "ctrl-f:execute-silent(cd {} && pwd > /tmp/fzf_new_dir)+reload(fd --exclude .git --min-depth 1 . {} | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
+    --bind "ctrl-f:execute-silent(cd {} && pwd > /tmp/fzf_new_dir)+reload(fd --exclude .git --exclude venv --exclude node_modules --min-depth 1 . {} | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
     --bind "ctrl-e:execute(${EDITOR:-nvim} {})+abort" \
-    --bind "ctrl-b:execute-silent(echo $search_dir/>/tmp/fzf_prompt)+transform-prompt(cat /tmp/fzf_prompt)+reload(fd --type d --exclude .git --min-depth 1 . $search_dir | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
-    --bind "ctrl-h:reload(fd --hidden --exclude .git --min-depth 1 . \$(cat /tmp/fzf_prompt) | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
+    --bind "ctrl-b:execute-silent(echo $search_dir/>/tmp/fzf_prompt)+transform-prompt(cat /tmp/fzf_prompt)+reload(fd --type d --exclude .git --exclude venv --exclude node_modules --min-depth 1 . $search_dir | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
+    --bind "ctrl-h:reload(fd --hidden --exclude .git --exclude venv --exclude node_modules --min-depth 1 . \$(cat /tmp/fzf_prompt) | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
     --bind "ctrl-d:preview-page-down" \
     --bind "ctrl-u:preview-page-up" \
     --bind "ctrl-z:ignore" \
