@@ -1,6 +1,8 @@
 # **fzf-cd**
 
-![FZF Navigator Screenshot](fzf-cd.png)
+![FZF Lsd Tree Screenshot](./fzf-cd.png)
+
+![FZF Bat Screenshot](./fzf-cd2.png)
 
 ## Features
 
