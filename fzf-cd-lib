@@ -1,0 +1,174 @@
+#!/bin/bash
+
+# Fuzzy Directory Navigator
+# ------------------------
+# This script provides an interactive directory navigation interface using fzf.
+# It allows users to quickly browse and switch between directories, preview contents,
+# and open files in their preferred editor.
+#
+# Dependencies:
+# - fzf: Fuzzy finder
+# - fd: Fast directory/file finder
+# - bat: Syntax highlighting (for preview)
+# - lsd: Modern ls alternative (for directory preview)
+# - chafa: Sixel image preview (for image files) or imgcat (with iterm2)
+#
+# Features:
+# - Directory navigation with fuzzy search
+# - File preview with syntax highlighting
+# - Directory structure preview
+# - Quick file editing
+# - Support for hidden files (excluding .git)
+#
+# Keybindings:
+# - Ctrl+R: Search current directory (including files)
+# - Ctrl+E: Open file in editor
+# - Enter: Change to selected directory or open file
+# - Ctrl+C/Esc: Cancel operation
+# - Ctrl+U/Ctrl+D: Scroll preview up/down
+# - Ctrl+F/Ctrl+B: Page preview forward/backward
+
+# This script should be sourced, not executed directly
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  echo "This script must be sourced. Use: source $(basename "$0") [options] [directory]"
+  exit 1
+fi
+
+# Wrap the entire script logic inside a function to prevent 'shift' from affecting the shell's positional parameters
+__fzf_cd() {
+  # Function to display usage information
+  usage() {
+    echo "Usage: source $(basename "$0") [options] [directory]"
+    echo ""
+    echo "Options:"
+    echo "  -h    Display this help message"
+    echo ""
+    echo "Arguments:"
+    echo "  directory    The directory to start the search from (default: current directory)"
+  }
+
+  # Initialize default values
+    # Dynamically set fzf color scheme based on terminal theme
+  fzf_theme="${FZF_THEME:-dark}"
+
+  if [[ "$fzf_theme" == "light" ]]; then
+    fzf_colors="hl:#000000,pointer:#FF0000,marker:#00FF00,fg:#000000,info:#000000"
+  else
+    fzf_colors="hl:#FF9D00,pointer:#00FF00,marker:#00FFFF,fg:#C0CAF5,info:#C0CAF5"
+  fi
+
+  include_files=false
+  search_dir="$PWD"
+
+  # Parse flags using getopts
+  while getopts ":fh" opt; do
+    case $opt in
+    h)
+      usage
+      return 0
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      return 1
+      ;;
+    esac
+  done
+
+
+  # Handle directory argument
+  if [[ $# -ge 1 ]]; then
+    # If path is relative (doesn't start with /), prepend current directory
+    if [[ ! "$1" = /* ]]; then
+      search_dir="$PWD/$1"
+    else
+      search_dir="$1"
+    fi
+
+    # Normalize the path
+    search_dir="$(realpath -m "$search_dir")"
+  else
+    # No directory argument provided, use current directory
+    search_dir="$PWD"
+  fi
+
+  # Remove trailing slash if present
+  search_dir="${search_dir%/}"
+
+  # Validate directory exists
+  if [[ ! -d "$search_dir" ]]; then
+    echo "Error: Directory '$search_dir' does not exist" >&2
+    return 1
+  fi
+
+  # Get the original directory to return if needed
+  original_dir="$PWD"
+
+  # Change to the search directory to ensure relative paths work
+  cd "$search_dir" || {
+    echo "Failed to change directory to '$search_dir'"
+    return 1
+  }
+
+  # Determine the finder command based on the include_files flag
+  if $include_files; then
+    finder_cmd="fd --exclude .git --min-depth 1 ."
+  else
+    finder_cmd="fd --type d --exclude .git --min-depth 1 ."
+  fi
+
+  # Echo keybindings
+  keybindings=$(echo -e "\e[1;32mctrl-f/b:\e[0m go into / return, \e[1;32mctrl-e:\e[0m open in editor, \e[1;32menter:\e[0m cd / open")
+  # Execute the finder command and pipe to fzf with dynamic colors
+  selected_dir=$(eval "$finder_cmd" | fzf --ansi \
+    --color="$fzf_colors" \
+    --header="$keybindings" \
+    --height=75% \
+    --scheme=path \
+    --layout=reverse \
+    --highlight-line \
+    --border "bold" \
+    --exact \
+    --ignore-case \
+    --tiebreak=begin \
+    --keep-right \
+    --delimiter "/" \
+    --margin 1 \
+    --preview-label "Preview" \
+    --prompt "$search_dir/> " \
+    --preview "$HOME/.local/lib/fzf-cd/fzf-cd-preview {}" \
+    --bind "ctrl-f:execute-silent(cd {} && pwd > /tmp/fzf_new_dir)+reload(fd --exclude .git --min-depth 1 . {} | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
+    --bind "ctrl-e:execute(${EDITOR:-nvim} {})+abort" \
+    --bind "ctrl-b:execute-silent(echo $search_dir/>/tmp/fzf_prompt)+transform-prompt(cat /tmp/fzf_prompt)+reload(fd --type d --exclude .git --min-depth 1 . $search_dir | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
+    --bind "ctrl-h:reload(fd --hidden --exclude .git --min-depth 1 . \$(cat /tmp/fzf_prompt) | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
+    --bind "ctrl-d:preview-page-down" \
+    --bind "ctrl-u:preview-page-up" \
+    --bind "ctrl-z:ignore" \
+    --preview-window "right:~3" 2>/dev/null)
+
+  # remove temp files
+  rm -f /tmp/fzf_new_dir /tmp/fzf_prompt
+
+  # If nothing was selected, return to the original directory
+  if [[ -z "$selected_dir" ]]; then
+    cd "$original_dir" || {
+      echo "Failed to return to original directory '$original_dir'"
+      return 1
+    }
+    return 1
+  fi
+
+  # Get absolute path of the selected item
+  full_path="$(realpath "$selected_dir")"
+
+  # Handle the selected item based on whether it's a file or directory
+  if [[ -d "$full_path" ]]; then
+    cd "$full_path" || {
+      echo "Failed to change directory to '$full_path'"
+      return 1
+    }
+  elif [[ -f "$full_path" ]]; then
+    SELECTED_PATH="$full_path" # Set this variable for the launcher
+    ${EDITOR:-nvim} "$full_path"
+  fi
+}
