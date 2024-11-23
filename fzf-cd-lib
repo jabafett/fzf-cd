@@ -21,12 +21,14 @@
 # - Support for hidden files (excluding .git)
 #
 # Keybindings:
-# - Ctrl+R: Search current directory (including files)
-# - Ctrl+E: Open file in editor
+# - Ctrl+F: Search current directory (including files)
+# - Ctrl+B: Return to original directory
+# - Ctrl+H: Toggle hidden files/folders
+# - Ctrl+E: Open in editor
 # - Enter: Change to selected directory or open file
 # - Ctrl+C/Esc: Cancel operation
 # - Ctrl+U/Ctrl+D: Scroll preview up/down
-# - Ctrl+F/Ctrl+B: Page preview forward/backward
+# - Ctrl+[J|N]/[K|P]: Move Selection
 
 # This script should be sourced, not executed directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
