@@ -50,7 +50,7 @@ __fzf_cd() {
   }
 
   # Initialize default values
-    # Dynamically set fzf color scheme based on terminal theme
+  # Dynamically set fzf color scheme based on terminal theme
   fzf_theme="${FZF_THEME:-dark}"
 
   if [[ "$fzf_theme" == "light" ]]; then
@@ -63,7 +63,7 @@ __fzf_cd() {
   search_dir="$PWD"
 
   # Parse flags using getopts
-  while getopts ":fh" opt; do
+  while getopts ":h" opt; do
     case $opt in
     h)
       usage
@@ -76,7 +76,6 @@ __fzf_cd() {
       ;;
     esac
   done
-
 
   # Handle directory argument
   if [[ $# -ge 1 ]]; then
