@@ -1,8 +1,6 @@
-# FZF Directory Navigator
+# **fzf-cd**
 
-FZF Directory Navigator is a powerful command-line tool that provides an interactive and efficient way to navigate and manage directories using fuzzy search. It leverages the popular `fzf` utility to offer a seamless and intuitive directory navigation experience with rich file previews and quick editing capabilities.
-
-![FZF Directory Navigator Demo](demo.gif)
+![FZF Navigator Screenshot](fzf-cd.png)
 
 ## Features
 
@@ -51,6 +49,7 @@ Most dependencies can be installed via your package manager:
 1. First ensure you have [Zinit](https://github.com/zdharma-continuum/zinit) installed.
 
 2. Add the following to your `~/.zshrc`:
+
 ```bash
 # Basic usage
 zinit load jabafett/fzf-cd
@@ -64,11 +63,13 @@ bindkey '^g' ___fzf_cd  # Changes binding to Ctrl+G
 ```
 
 The plugin will automatically:
+
 - Install and configure all required dependencies (fzf, fd, bat, lsd)
 - Set up the necessary scripts and completions
 - Configure the default keybinding (Ctrl+F)
 
 After adding the configuration:
+
 ```bash
 # Reload your shell
 source ~/.zshrc
@@ -80,16 +81,19 @@ zinit update jabafett/fzf-cd
 ### Automatic Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/jabafett/fzf-cd.git
    ```
 
 2. Navigate to the cloned directory:
+
    ```bash
    cd fzf-cd
    ```
 
 3. Run the installation script:
+
    ```bash
    ./install.sh
    ```
@@ -104,11 +108,13 @@ zinit update jabafett/fzf-cd
 ### Manual Installation
 
 1. Create the necessary directories:
+
    ```bash
    mkdir -p ~/.local/bin ~/.local/lib/fzf-cd
    ```
 
 2. Copy the scripts to their locations:
+
    ```bash
    cp fzf-cd ~/.local/bin/
    cp fzf-cd-lib ~/.local/lib/fzf-cd/
@@ -116,6 +122,7 @@ zinit update jabafett/fzf-cd
    ```
 
 3. Make the scripts executable:
+
    ```bash
    chmod +x ~/.local/bin/fzf-cd
    chmod +x ~/.local/lib/fzf-cd/fzf-cd-lib
@@ -151,18 +158,18 @@ zinit update jabafett/fzf-cd
 
 ### Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+F` | Navigate into directory |
-| `Ctrl+B` | Navigate back |
-| `Ctrl+E` | Open file in editor |
-| `Enter` | Change directory/Open file |
-| `Ctrl+C`/`Esc` | Exit navigator |
-| `Ctrl+K`/`P` | Move up the list |
-| `Ctrl+J`/`N` | Move down the list |
-| `Ctrl+U` | Scroll preview up |
-| `Ctrl+D` | Scroll preview down |
-| `Ctrl+H` | Toggle hidden files |
+| Shortcut       | Action                     |
+| -------------- | -------------------------- |
+| `Ctrl+F`       | Navigate into directory    |
+| `Ctrl+B`       | Navigate back              |
+| `Ctrl+E`       | Open file in editor        |
+| `Enter`        | Change directory/Open file |
+| `Ctrl+C`/`Esc` | Exit navigator             |
+| `Ctrl+K`/`P`   | Move up the list           |
+| `Ctrl+J`/`N`   | Move down the list         |
+| `Ctrl+U`       | Scroll preview up          |
+| `Ctrl+D`       | Scroll preview down        |
+| `Ctrl+H`       | Toggle hidden files        |
 
 ### Command Line Options
 
@@ -179,6 +186,7 @@ directory Starting directory (default: current directory)
 ### Changing the Default Editor
 
 The navigator uses the `$EDITOR` environment variable. Set it in your `~/.zshrc`:
+
 ```bash
 export EDITOR='nvim' # or 'vim', 'code', etc.
 ```
@@ -186,6 +194,7 @@ export EDITOR='nvim' # or 'vim', 'code', etc.
 ### Preview Customization
 
 Modify preview behavior by setting environment variables:
+
 ```bash
 export BAT_STYLE="numbers,changes" # Customize bat preview style
 export FZF_PREVIEW_COLUMNS=80 # Set preview width
@@ -204,11 +213,13 @@ export FZF_THEME="dark"    # Set to "light" for light terminal themes
 ## Uninstallation
 
 To remove FZF Directory Navigator:
+
 ```bash
 ./uninstall.sh
 ```
 
 This will:
+
 - Remove all installed scripts
 - Clean up configuration from `~/.zshrc`
 - Remove created directories
