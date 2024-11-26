@@ -118,8 +118,11 @@ __fzf_cd() {
     finder_cmd="fd --type d --exclude .git --exclude venv --exclude node_modules --min-depth 1 ."
   fi
 
+  # Store the current directory in a new tmp file
+  pwd >"/tmp/fzf_new_dir"
+
   # Echo keybindings
-  keybindings=$(echo -e "\e[1;32mctrl-f/b:\e[0m go into / return, \e[1;32mctrl-e:\e[0m open in editor, \e[1;32menter:\e[0m cd / open")
+  keybindings=$(echo -e "\e[1;34mctrl-f:\e[0m go into, \e[1;32mctrl-r:\e[0m return to start, \e[1;32menter:\e[0m cd / open\n\e[1;34mctrl-u/d:\e[0m scroll preview, \e[1;32mctrl-h:\e[0m show hidden, \e[1;32mctrl-o:\e[0m open in editor, ")
   # Execute the finder command and pipe to fzf with dynamic colors
   selected_dir=$(eval "$finder_cmd" | fzf --ansi \
     --color="$fzf_colors" \
@@ -138,10 +141,10 @@ __fzf_cd() {
     --preview-label "Preview" \
     --prompt "$search_dir/> " \
     --preview "$HOME/.local/lib/fzf-cd/fzf-cd-preview {}" \
-    --bind "ctrl-f:execute-silent(cd {} && pwd > /tmp/fzf_new_dir)+reload(fd --exclude .git --exclude venv --exclude node_modules --min-depth 1 . {} | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
-    --bind "ctrl-e:execute(${EDITOR:-nvim} {})+abort" \
-    --bind "ctrl-b:execute-silent(echo $search_dir/>/tmp/fzf_prompt)+transform-prompt(cat /tmp/fzf_prompt)+reload(fd --type d --exclude .git --exclude venv --exclude node_modules --min-depth 1 . $search_dir | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
-    --bind "ctrl-h:reload(fd --hidden --exclude .git --exclude venv --exclude node_modules --min-depth 1 . \$(cat /tmp/fzf_prompt) | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')" \
+    --bind "ctrl-f:execute-silent(cd {} && pwd > /tmp/fzf_new_dir && search_dir={})+reload(fd --exclude .git --exclude venv --exclude node_modules --min-depth 1 . {} | awk -v prefix=\"$search_dir/\" '{sub(prefix, \"\"); print}')+transform-prompt(cat /tmp/fzf_new_dir)" \
+    --bind "ctrl-o:execute(${EDITOR:-nvim} {})+abort" \
+    --bind "ctrl-h:reload(fd --hidden --exclude .git --exclude venv --exclude node_modules --min-depth 1 . | sed 's|^./||')" \
+    --bind "ctrl-r:transform-prompt($original_dir)+reload(fd --type d --exclude .git --exclude venv --exclude node_modules --min-depth 1 . $original_dir | awk -v prefix=\"$original_dir/\" '{sub(prefix, \"\"); print}')" \
     --bind "ctrl-d:preview-page-down" \
     --bind "ctrl-u:preview-page-up" \
     --bind "ctrl-z:ignore" \
