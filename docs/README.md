@@ -16,6 +16,12 @@
 - 🚀 Fast navigation with fd-find
 - 📦 Easy installation and configuration
 
+## Disclaimer
+
+This is a dirty nasty script i made that at first I just wanted in my zshrc but i kept tinkering with it
+and it just felt cleaner to add the zsh plugin capability. Not at all fully refined and there is unexpected behavior.
+If you improve it, I would love to merge any requests.
+
 ## Installation
 
 ### Prerequisites
